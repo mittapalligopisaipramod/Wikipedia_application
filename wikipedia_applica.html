@@ -1,0 +1,97 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/5f59ca6ad3.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./wiki_app"/>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="wiki-search-header text-center">
+            <img class="wiki-logo" src="https://nkb-backend-otg-media-static.s3.ap-south-1.amazonaws.com/ccbp-dynamic-webapps/wiki-logo-img.png" />
+            <br />
+            <input placeholder="Type a keyword and press Enter to search" type="search" class="search-input w-100" id="searchInput" />
+        </div>
+        <div class="d-none" id="spinner">
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+    </div>
+    <script>
+        let searchResultsId = document.getElementById("searchResults");
+let searchInputId = document.getElementById("searchInput");
+let spinnerId = document.getElementById("spinner");
+
+function fun2(words) {
+    let {
+        title,
+        link,
+        description
+    } = words;
+    let div = document.createElement("div");
+    div.classList.add("result-item");
+    let a = document.createElement("a");
+    a.classList.add("result-title");
+    a.href = link;
+    a.target = "_blank";
+    a.textContent = title;
+    div.appendChild(a);
+    let br = document.createElement("br");
+    div.appendChild(br);
+    let a2 = document.createElement("a");
+    a2.classList.add("result-url");
+    a2.href = link;
+    a2.target = "_blank";
+    a2.textContent = link;
+    div.appendChild(a2);
+    let br2 = document.createElement("br");
+    div.appendChild(br2);
+
+    let paragraph = document.createElement("p");
+    paragraph.classList.add("link-description");
+    paragraph.textContent = description;
+    //console.log(paragraph.textContent);
+    div.appendChild(paragraph);
+    searchResultsId.appendChild(div);
+}
+
+function fun(search_results) {
+    //fun2(search_results[0]);
+    spinnerId.classList.add("d-none");
+    for (let words of search_results) {
+        fun2(words);
+    }
+}
+searchInputId.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        spinnerId.classList.remove("d-none");
+        searchResultsId.textContent = "";
+        let input = searchInputId.value;
+        let url = "https://apis.ccbp.in/wiki-search?search=" + input;
+        let option = {
+            method: 'GET'
+        };
+        fetch(url, option)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jasonData) {
+                let {
+                    search_results
+                } = jasonData;
+                fun(search_results);
+            });
+    }
+});
+    </script>
+</body>
+
+</html>
